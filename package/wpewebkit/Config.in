@@ -67,7 +67,6 @@ config BR2_PACKAGE_WPEWEBKIT
 	select BR2_PACKAGE_WAYLAND_PROTOCOLS
 	select BR2_PACKAGE_WEBP
 	select BR2_PACKAGE_WEBP_DEMUX
-	select BR2_PACKAGE_WPEBACKEND_FDO
 	help
 	  WPE (Web Platform for Embedded) port of the WebKit engine,
 	  to allow embedders to create simple and performant systems

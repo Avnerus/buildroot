@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-WPEWEBKIT_VERSION = 2.22.3
+WPEWEBKIT_VERSION = 2.22.4
 WPEWEBKIT_SITE = http://www.wpewebkit.org/releases
 WPEWEBKIT_SOURCE = wpewebkit-$(WPEWEBKIT_VERSION).tar.xz
 WPEWEBKIT_INSTALL_STAGING = YES
@@ -14,7 +14,7 @@ WPEWEBKIT_LICENSE_FILES = \
 	Source/WebCore/LICENSE-LGPL-2.1
 WPEWEBKIT_DEPENDENCIES = host-gperf host-python host-ruby \
 	harfbuzz cairo icu jpeg libepoxy libgcrypt libgles libsoup libtasn1 \
-	libpng libxslt wayland-protocols webp wpebackend-fdo
+	libpng libxslt wayland-protocols webp 
 
 WPEWEBKIT_CONF_OPTS = \
 	-DPORT=WPE \
@@ -25,6 +25,14 @@ ifeq ($(BR2_PACKAGE_WPEWEBKIT_ARCH_SUPPORTS_JIT),y)
 WPEWEBKIT_CONF_OPTS += -DENABLE_JIT=ON
 else
 WPEWEBKIT_CONF_OPTS += -DENABLE_JIT=OFF
+endif
+
+ifeq ($(BR2_PACKAGE_WPEBACKEND_FDO),y)
+    WPEWEBKIT_DEPENDENCIES += wpebackend-fdo
+endif
+
+ifeq ($(BR2_PACKAGE_WPEBACKEND_RDK),y)
+    WPEWEBKIT_DEPENDENCIES += wpebackend-rdk
 endif
 
 ifeq ($(BR2_PACKAGE_WPEWEBKIT_MULTIMEDIA),y)
