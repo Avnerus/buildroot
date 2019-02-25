@@ -18,6 +18,29 @@ do
 # fixes rpi3 ttyAMA0 serial console
 dtoverlay=pi3-miniuart-bt
 __EOF__
+    fi
+    ;;
+    --waveshare)
+    if ! grep -qE '^hdmi_mode=87' "${BINARIES_DIR}/rpi-firmware/config.txt"; then
+        echo "Adding Softbot Waveshare stuff to config.txt."
+        cat << __EOF__ >> "${BINARIES_DIR}/rpi-firmware/config.txt"
+
+# from https://www.waveshare.com/w/upload/4/4a/5inch_HDMI_LCD_User_Manual_EN.pdf
+max_usb_current=1
+hdmi_group=2
+hdmi_mode=87
+hdmi_cvt 800 480 60 6 0 0 0
+hdmi_drive=1
+__EOF__
+    fi
+    ;;
+    --camera)
+    if ! grep -qE '^start_x=1' "${BINARIES_DIR}/rpi-firmware/config.txt"; then
+        echo "Adding camera support to config.txt"
+        cat << __EOF__ >> "${BINARIES_DIR}/rpi-firmware/config.txt"
+
+start_x=1
+__EOF__
 		fi
 		;;
 		--aarch64)
