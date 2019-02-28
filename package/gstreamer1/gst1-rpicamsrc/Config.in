@@ -1,0 +1,6 @@
+config BR2_PACKAGE_GST1_RPICAMSRC
+	bool "gst1-rpicamsrc"
+	help
+	  Raspberry Pi camera support for GStreamer1
+
+	  https://github.com/thaytan/gst-rpicamsrc

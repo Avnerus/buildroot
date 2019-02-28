@@ -19,7 +19,6 @@ BR2_LINUX_KERNEL_DTS_SUPPORT=y
 BR2_LINUX_KERNEL_INTREE_DTS_NAME="bcm2710-rpi-3-b bcm2710-rpi-3-b-plus bcm2710-rpi-cm3"
 
 BR2_PACKAGE_RPI_FIRMWARE=y
-BR2_PACKAGE_RPI_FIRMWARE_X=y
 
 # Required tools to create the SD image
 BR2_PACKAGE_HOST_DOSFSTOOLS=y
@@ -33,10 +32,14 @@ BR2_TARGET_ROOTFS_EXT2_SIZE="1G"
 # BR2_TARGET_ROOTFS_TAR is not set
 BR2_ROOTFS_POST_BUILD_SCRIPT="board/raspberrypi3/post-build.sh"
 BR2_ROOTFS_POST_IMAGE_SCRIPT="board/raspberrypi3/post-image.sh"
-BR2_ROOTFS_POST_SCRIPT_ARGS="--add-pi3-miniuart-bt-overlay --waveshare --camera"
+BR2_ROOTFS_POST_SCRIPT_ARGS="--add-pi3-miniuart-bt-overlay --waveshare"
 
 # SOFTBOT
 BR2_TARGET_GENERIC_ROOT_PASSWD="softbot"
+BR2_PACKAGE_RPI_FIRMWARE_X=y
+BR2_PACKAGE_GST1_RPICAMSRC=y
+BR2_PACKAGE_LTRACE=y
+BR2_UCLIBC_CONFIG="softbot-uClibc-ng.config"
 
 # WPE Webkit
 BR2_GCC_ENABLE_GRAPHITE=y

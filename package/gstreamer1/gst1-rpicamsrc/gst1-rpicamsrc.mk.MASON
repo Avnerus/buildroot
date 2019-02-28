@@ -1,0 +1,20 @@
+################################################################################
+#
+# gst-rpicamsrc
+#
+################################################################################
+GST1_RPICAMSRC_VERSION = bc3cbff37e7b7fa7bff5bca6b6db4c1073889ee2
+GST1_RPICAMSRC_SITE = https://github.com/Avnerus/gst-rpicamsrc
+GST1_RPICAMSRC_SITE_METHOD = git
+GST1_RPICAMSRC_DEPENDENCIES = rpi-userland
+#GST1_RPICAMSRC_CONF_OPTS += \
+	CFLAGS="$(TARGET_CFLAGS) -lvcos -lvchiq_arm -lmmal_core -lmmal_util" \
+	CXXFLAGS="$(TARGET_CXXFLAGS) \
+		-I$(STAGING_DIR)/usr/include \
+		-I$(STAGING_DIR)/usr/include/interface/vmcs_host/linux \
+		-I$(STAGING_DIR)/usr/include/interface/vcos/pthreads"
+
+#GST1_RPICAMSRC_AUTORECONF = YES
+
+#$(eval $(autotools-package))
+$(eval $(meson-package))

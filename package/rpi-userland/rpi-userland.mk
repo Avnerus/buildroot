@@ -4,13 +4,15 @@
 #
 ################################################################################
 
-RPI_USERLAND_VERSION = 8f0abfb07b96e7ee85f46e59d895014ec5e25f5e
-RPI_USERLAND_SITE = $(call github,raspberrypi,userland,$(RPI_USERLAND_VERSION))
+RPI_USERLAND_VERSION = softbot
+RPI_USERLAND_SITE = https://github.com/Avnerus/userland
+RPI_USERLAND_SITE_METHOD = git
 RPI_USERLAND_LICENSE = BSD-3-Clause
 RPI_USERLAND_LICENSE_FILES = LICENCE
 RPI_USERLAND_INSTALL_STAGING = YES
 RPI_USERLAND_CONF_OPTS = -DVMCS_INSTALL_PREFIX=/usr \
-	-DCMAKE_C_FLAGS="$(TARGET_CFLAGS) \
+		-DCMAKE_SHARED_LINKER_FLAGS="-Wl,--no-as-needed" \
+		-DCMAKE_C_FLAGS="$(TARGET_CFLAGS) \
 		-DVCFILED_LOCKFILE=\\\"/var/run/vcfiled.pid\\\""
 
 RPI_USERLAND_PROVIDES = libegl libgles libopenmax libopenvg

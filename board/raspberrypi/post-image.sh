@@ -32,15 +32,6 @@ hdmi_mode=87
 hdmi_cvt 800 480 60 6 0 0 0
 hdmi_drive=1
 __EOF__
-    fi
-    ;;
-    --camera)
-    if ! grep -qE '^start_x=1' "${BINARIES_DIR}/rpi-firmware/config.txt"; then
-        echo "Adding camera support to config.txt"
-        cat << __EOF__ >> "${BINARIES_DIR}/rpi-firmware/config.txt"
-
-start_x=1
-__EOF__
 		fi
 		;;
 		--aarch64)
