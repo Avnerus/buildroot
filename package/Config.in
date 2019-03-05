@@ -1084,6 +1084,10 @@ endmenu
 endif
 endmenu
 
+menu "Softbot Kit"
+    source "package/softbot-scripts/Config.in"
+endmenu
+
 menu "Libraries"
 
 menu "Audio/Sound"

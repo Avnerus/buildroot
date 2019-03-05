@@ -3,7 +3,7 @@
 # gst-rpicamsrc
 #
 ################################################################################
-GST1_RPICAMSRC_VERSION = 2ea31838fbeab732cd9e672f0c786ca9c3783f99
+GST1_RPICAMSRC_VERSION = 42fd984f5a1bd87e293cc1aed5cdfe27cbaac4f8
 GST1_RPICAMSRC_SITE = https://github.com/Avnerus/gst-rpicamsrc
 GST1_RPICAMSRC_SITE_METHOD = git
 GST1_RPICAMSRC_DEPENDENCIES = rpi-userland

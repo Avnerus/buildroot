@@ -1,0 +1,4 @@
+config BR2_PACKAGE_SOFTBOT_SCRIPTS
+    bool "Sofbot scripts"
+    help
+      A collection of scripts for starting softbot
