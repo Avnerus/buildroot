@@ -1,0 +1,11 @@
+--- a/ext/gl/Makefile.in
++++ b/ext/gl/Makefile.in
+@@ -801,7 +801,7 @@
+ 	$(X11_LIBS) \
+ 	$(LIBM)
+ 
+-libgstopenglmixers_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
++libgstopenglmixers_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) -lbcm_host
+ libgstopenglmixers_la_LIBTOOLFLAGS = --tag=CC
+ all: all-am
+ 

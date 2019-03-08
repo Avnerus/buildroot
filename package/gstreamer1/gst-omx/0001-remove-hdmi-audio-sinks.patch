@@ -1,0 +1,27 @@
+--- a/config/rpi/gstomx.conf
++++ b/config/rpi/gstomx.conf
+@@ -79,24 +79,3 @@
+ in-port-index=200
+ out-port-index=201
+ hacks=no-component-role;no-component-reconfigure
+-
+-[omxanalogaudiosink]
+-type-name=GstOMXAnalogAudioSink
+-core-name=/opt/vc/lib/libopenmaxil.so
+-component-name=OMX.broadcom.audio_render
+-rank=257
+-in-port-index=100
+-out-port-index=101
+-hacks=no-component-role
+-sink-template-caps=audio/x-raw,format=(string){S16LE,S32LE},layout=(string)interleaved,rate=(int){8000,11025,16000,22050,24000,32000,44100,48000,88200,96000,176400,192000},channels=(int)[1,2]
+-
+-[omxhdmiaudiosink]
+-type-name=GstOMXHdmiAudioSink
+-core-name=/opt/vc/lib/libopenmaxil.so
+-component-name=OMX.broadcom.audio_render
+-rank=258
+-in-port-index=100
+-out-port-index=101
+-hacks=no-component-role
+-sink-template-caps=audio/x-raw,format=(string){S16LE,S32LE},layout=(string)interleaved,rate=(int){8000,11025,16000,22050,24000,32000,44100,48000,88200,96000,176400,192000},channels=(int)[1,8];audio/x-ac3,framed=(boolean)true;audio/x-dts,framed=(boolean)true,block-size=(int){512,1024,2048}
+-

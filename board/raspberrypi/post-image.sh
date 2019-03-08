@@ -31,6 +31,8 @@ hdmi_group=2
 hdmi_mode=87
 hdmi_cvt 800 480 60 6 0 0 0
 hdmi_drive=1
+# it doesn't have audio, force ignore
+hdmi_ignore_edid_audio=1
 __EOF__
 		fi
 		;;
