@@ -5,6 +5,7 @@ SOFTBOT_SCRIPTS_SITE_METHOD = local
 define SOFTBOT_SCRIPTS_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 0755 $(@D)/softbot-stream-video.sh $(TARGET_DIR)/usr/bin/softbot-stream-video.sh
 	$(INSTALL) -D -m 0755 $(@D)/softbot-stream-multi.sh $(TARGET_DIR)/usr/bin/softbot-stream-multi.sh
+	$(INSTALL) -D -m 0755 $(@D)/softbot-browser.sh $(TARGET_DIR)/usr/bin/softbot-browser.sh
 endef
 
 $(eval $(generic-package))
