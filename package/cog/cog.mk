@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-COG_VERSION = v0.2.0
+COG_VERSION = master
 COG_SITE = $(call github,Igalia,cog,$(COG_VERSION))
 COG_DEPENDENCIES = dbus wpewebkit
 COG_LICENSE = MIT

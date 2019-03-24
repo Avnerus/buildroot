@@ -1,0 +1,206 @@
+Subversion Revision: 243369
+diff --git a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamer.cpp b/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamer.cpp
+index 262be2e242dca09a0211319deef3072a46a24b88..ab65b5394b6a85878ddc796532b6cae97b613987 100644
+--- a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamer.cpp
++++ b/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamer.cpp
+@@ -136,13 +136,14 @@ MediaPlayerPrivateGStreamer::MediaPlayerPrivateGStreamer(MediaPlayer* player)
+     , m_buffering(false)
+     , m_bufferingPercentage(0)
+     , m_cachedPosition(MediaTime::invalidTime())
++    , m_cachedDuration(MediaTime::invalidTime())
++    , m_reportedDuration(MediaTime::invalidTime())
+     , m_canFallBackToLastFinishedSeekPosition(false)
+     , m_changingRate(false)
+     , m_downloadFinished(false)
+     , m_errorOccured(false)
+     , m_isEndReached(false)
+     , m_isStreaming(false)
+-    , m_durationAtEOS(MediaTime::invalidTime())
+     , m_paused(true)
+     , m_playbackRate(1)
+     , m_requestedState(GST_STATE_VOID_PENDING)
+@@ -302,7 +303,6 @@ void MediaPlayerPrivateGStreamer::loadFull(const String& urlString, const gchar*
+     m_readyState = MediaPlayer::HaveNothing;
+     m_player->readyStateChanged();
+     m_volumeAndMuteInitialized = false;
+-    m_durationAtEOS = MediaTime::invalidTime();
+     m_hasTaintedOrigin = WTF::nullopt;
+ 
+     if (!m_delayingLoad)
+@@ -357,14 +357,17 @@ void MediaPlayerPrivateGStreamer::commitLoad()
+ 
+ MediaTime MediaPlayerPrivateGStreamer::playbackPosition() const
+ {
++    GST_TRACE_OBJECT(pipeline(), "isEndReached: %s, seeking: %s, seekTime: %s", boolForPrinting(m_isEndReached), boolForPrinting(m_seeking), m_seekTime.toString().utf8().data());
+     if (m_isEndReached && m_seeking)
+         return m_seekTime;
+ 
+     // This constant should remain lower than HTMLMediaElement's maxTimeupdateEventFrequency.
+     static const Seconds positionCacheThreshold = 200_ms;
+     Seconds now = WTF::WallTime::now().secondsSinceEpoch();
+-    if (m_lastQueryTime && (now - m_lastQueryTime.value()) < positionCacheThreshold && m_cachedPosition.isValid())
++    if (m_lastQueryTime && (now - m_lastQueryTime.value()) < positionCacheThreshold && m_cachedPosition.isValid()) {
++        GST_TRACE_OBJECT(pipeline(), "Returning cached position: %s", m_cachedPosition.toString().utf8().data());
+         return m_cachedPosition;
++    }
+ 
+     m_lastQueryTime = now;
+ 
+@@ -375,7 +378,7 @@ MediaTime MediaPlayerPrivateGStreamer::playbackPosition() const
+         gst_query_parse_position(query, 0, &position);
+     gst_query_unref(query);
+ 
+-    GST_TRACE_OBJECT(pipeline(), "Position %" GST_TIME_FORMAT, GST_TIME_ARGS(position));
++    GST_TRACE_OBJECT(pipeline(), "Position %" GST_TIME_FORMAT ", canFallBackToLastFinishedSeekPosition: %s", GST_TIME_ARGS(position), boolForPrinting(m_canFallBackToLastFinishedSeekPosition));
+ 
+     MediaTime playbackPosition = MediaTime::zeroTime();
+     GstClockTime gstreamerPosition = static_cast<GstClockTime>(position);
+@@ -477,29 +480,39 @@ void MediaPlayerPrivateGStreamer::pause()
+         loadingFailed(MediaPlayer::Empty);
+ }
+ 
+-MediaTime MediaPlayerPrivateGStreamer::durationMediaTime() const
++MediaTime MediaPlayerPrivateGStreamer::platformDuration() const
+ {
+-    if (!m_pipeline || m_errorOccured)
++    GST_TRACE_OBJECT(pipeline(), "errorOccured: %s, pipeline state: %s", boolForPrinting(m_errorOccured), gst_element_state_get_name(GST_STATE(m_pipeline.get())));
++    if (m_errorOccured)
+         return MediaTime::invalidTime();
+ 
+-    if (m_durationAtEOS.isValid())
+-        return m_durationAtEOS;
+-
+     // The duration query would fail on a not-prerolled pipeline.
+     if (GST_STATE(m_pipeline.get()) < GST_STATE_PAUSED)
+-        return MediaTime::positiveInfiniteTime();
+-
+-    gint64 timeLength = 0;
++        return MediaTime::invalidTime();
+ 
+-    if (!gst_element_query_duration(m_pipeline.get(), GST_FORMAT_TIME, &timeLength) || !GST_CLOCK_TIME_IS_VALID(timeLength)) {
++    int64_t duration = 0;
++    if (!gst_element_query_duration(m_pipeline.get(), GST_FORMAT_TIME, &duration) || !GST_CLOCK_TIME_IS_VALID(duration)) {
+         GST_DEBUG_OBJECT(pipeline(), "Time duration query failed for %s", m_url.string().utf8().data());
+         return MediaTime::positiveInfiniteTime();
+     }
+ 
+-    GST_LOG("Duration: %" GST_TIME_FORMAT, GST_TIME_ARGS(timeLength));
++    GST_LOG_OBJECT(pipeline(), "Duration: %" GST_TIME_FORMAT, GST_TIME_ARGS(duration));
++    return MediaTime(duration, GST_SECOND);
++}
+ 
+-    return MediaTime(timeLength, GST_SECOND);
+-    // FIXME: handle 3.14.9.5 properly
++MediaTime MediaPlayerPrivateGStreamer::durationMediaTime() const
++{
++    GST_TRACE_OBJECT(pipeline(), "Cached duration: %s", m_cachedDuration.toString().utf8().data());
++    if (m_cachedDuration.isValid())
++        return m_cachedDuration;
++
++    MediaTime duration = platformDuration();
++    if (!duration || duration.isInvalid())
++        return MediaTime::zeroTime();
++
++    m_cachedDuration = duration;
++
++    return m_cachedDuration;
+ }
+ 
+ MediaTime MediaPlayerPrivateGStreamer::currentMediaTime() const
+@@ -507,6 +520,7 @@ MediaTime MediaPlayerPrivateGStreamer::currentMediaTime() const
+     if (!m_pipeline || m_errorOccured)
+         return MediaTime::invalidTime();
+ 
++    GST_TRACE_OBJECT(pipeline(), "seeking: %s, seekTime: %s", boolForPrinting(m_seeking), m_seekTime.toString().utf8().data());
+     if (m_seeking)
+         return m_seekTime;
+ 
+@@ -2200,32 +2214,31 @@ void MediaPlayerPrivateGStreamer::didEnd()
+     // position is not always reported as 0 for instance.
+     m_cachedPosition = MediaTime::invalidTime();
+     MediaTime now = currentMediaTime();
+-    if (now > MediaTime { } && now <= durationMediaTime())
++    if (now > MediaTime::zeroTime() && !m_seeking) {
++        m_cachedDuration = now;
+         m_player->durationChanged();
++    }
+ 
+     m_isEndReached = true;
+-    timeChanged();
+ 
+     if (!m_player->client().mediaPlayerIsLooping()) {
+         m_paused = true;
+-        m_durationAtEOS = durationMediaTime();
+         changePipelineState(GST_STATE_READY);
+         m_downloadFinished = false;
+     }
++    timeChanged();
+ }
+ 
+ void MediaPlayerPrivateGStreamer::durationChanged()
+ {
+-    MediaTime previousDuration = durationMediaTime();
+-
+-    // FIXME: Check if this method is still useful, because it's not doing its work at all
+-    // since bug #159458 removed a cacheDuration() call here.
++    m_cachedDuration = MediaTime::invalidTime();
+ 
+-    // Avoid emiting durationchanged in the case where the previous
+-    // duration was 0 because that case is already handled by the
+-    // HTMLMediaElement.
+-    if (previousDuration && durationMediaTime() != previousDuration)
+-        m_player->durationChanged();
++    MediaTime duration = this->durationMediaTime();
++    if (duration != m_reportedDuration) {
++        if (m_reportedDuration.isValid())
++            m_player->durationChanged();
++        m_reportedDuration = duration;
++    }
+ }
+ 
+ void MediaPlayerPrivateGStreamer::loadingFailed(MediaPlayer::NetworkState error)
+diff --git a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamer.h b/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamer.h
+index 4a6fcceb13a1234aaed7400245766bd7ff2c276f..d417ec6bbeda635161f1bb154aeffbf2b06fece2 100644
+--- a/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamer.h
++++ b/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamer.h
+@@ -91,6 +91,7 @@ public:
+     bool paused() const override;
+     bool seeking() const override;
+ 
++    MediaTime platformDuration() const;
+     MediaTime durationMediaTime() const override;
+     MediaTime currentMediaTime() const override;
+     void seek(const MediaTime&) override;
+@@ -187,18 +188,17 @@ private:
+ #endif
+ 
+ protected:
+-    void cacheDuration();
+-
+     bool m_buffering;
+     int m_bufferingPercentage;
+     mutable MediaTime m_cachedPosition;
++    mutable MediaTime m_cachedDuration;
++    mutable MediaTime m_reportedDuration;
+     bool m_canFallBackToLastFinishedSeekPosition;
+     bool m_changingRate;
+     bool m_downloadFinished;
+     bool m_errorOccured;
+     mutable bool m_isEndReached;
+     mutable bool m_isStreaming;
+-    mutable MediaTime m_durationAtEOS;
+     bool m_paused;
+     float m_playbackRate;
+     GstState m_currentState;
+diff --git a/Source/WebCore/platform/graphics/gstreamer/mse/MediaPlayerPrivateGStreamerMSE.cpp b/Source/WebCore/platform/graphics/gstreamer/mse/MediaPlayerPrivateGStreamerMSE.cpp
+index 1c840a1b856b7dd6232a9efd84ce2abfeb55a066..aac38c17b7464b128eba3cf85c323f1cb84b98cb 100644
+--- a/Source/WebCore/platform/graphics/gstreamer/mse/MediaPlayerPrivateGStreamerMSE.cpp
++++ b/Source/WebCore/platform/graphics/gstreamer/mse/MediaPlayerPrivateGStreamerMSE.cpp
+@@ -782,7 +782,6 @@ MediaTime MediaPlayerPrivateGStreamerMSE::currentMediaTime() const
+         m_eosPending = false;
+         m_isEndReached = true;
+         m_cachedPosition = m_mediaTimeDuration;
+-        m_durationAtEOS = m_mediaTimeDuration;
+         m_player->timeChanged();
+     }
+     return position;
