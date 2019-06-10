@@ -1,0 +1,71 @@
+From f0597f7161d9574eee5baf2930fb96a015824c9f Mon Sep 17 00:00:00 2001
+From: Philippe Normand <pnormand@igalia.com>
+Date: Wed, 27 Mar 2019 13:35:26 +0000
+Subject: [PATCH xserver] WIP
+
+---
+ .../audio/gstreamer/AudioDestinationGStreamer.cpp | 15 ++++++++++++++-
+ .../gstreamer/WebKitWebAudioSourceGStreamer.cpp   |  7 ++++++-
+ 2 files changed, 20 insertions(+), 2 deletions(-)
+
+diff --git a/Source/WebCore/platform/audio/gstreamer/AudioDestinationGStreamer.cpp b/Source/WebCore/platform/audio/gstreamer/AudioDestinationGStreamer.cpp
+index 5bf8fda6b29..11d089c8857 100644
+--- a/Source/WebCore/platform/audio/gstreamer/AudioDestinationGStreamer.cpp
++++ b/Source/WebCore/platform/audio/gstreamer/AudioDestinationGStreamer.cpp
+@@ -30,6 +30,7 @@
+ #include "WebKitWebAudioSourceGStreamer.h"
+ #include <gst/audio/gstaudiobasesink.h>
+ #include <gst/gst.h>
++#include <wtf/HexNumber.h>
+ #include <wtf/glib/GUniquePtr.h>
+ #include <wtf/glib/RunLoopSourcePriority.h>
+ 
+@@ -83,7 +84,8 @@ AudioDestinationGStreamer::AudioDestinationGStreamer(AudioIOCallback& callback,
+     , m_sampleRate(sampleRate)
+     , m_isPlaying(false)
+ {
+-    m_pipeline = gst_pipeline_new("play");
++    auto name = makeString("webaudio_play_0x", hex(reinterpret_cast<uintptr_t>(this), Lowercase));
++    m_pipeline = gst_pipeline_new(name.utf8().data());
+     GRefPtr<GstBus> bus = adoptGRef(gst_pipeline_get_bus(GST_PIPELINE(m_pipeline)));
+     ASSERT(bus);
+     gst_bus_add_signal_watch_full(bus.get(), RunLoopSourcePriority::RunLoopDispatcher);
+@@ -152,6 +154,17 @@ gboolean AudioDestinationGStreamer::handleMessage(GstMessage* message)
+         gst_element_set_state(m_pipeline, GST_STATE_NULL);
+         m_isPlaying = false;
+         break;
++    case GST_MESSAGE_STATE_CHANGED: {
++        if (GST_MESSAGE_SRC(message) != GST_OBJECT_CAST(m_pipeline))
++            break;
++        GstState currentState, newState;
++        gst_message_parse_state_changed(message, &currentState, &newState, nullptr);
++        auto dotFileName = makeString(GST_OBJECT_NAME(m_pipeline), '.',
++            gst_element_state_get_name(currentState), '_', gst_element_state_get_name(newState)).utf8();
++        GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(GST_BIN_CAST(m_pipeline), GST_DEBUG_GRAPH_SHOW_ALL, dotFileName.data());
++
++        break;
++    }
+     default:
+         break;
+     }
+diff --git a/Source/WebCore/platform/audio/gstreamer/WebKitWebAudioSourceGStreamer.cpp b/Source/WebCore/platform/audio/gstreamer/WebKitWebAudioSourceGStreamer.cpp
+index 2f937f677cc..93b243012b1 100644
+--- a/Source/WebCore/platform/audio/gstreamer/WebKitWebAudioSourceGStreamer.cpp
++++ b/Source/WebCore/platform/audio/gstreamer/WebKitWebAudioSourceGStreamer.cpp
+@@ -211,7 +211,12 @@ static void webKitWebAudioSrcConstructed(GObject* object)
+     ASSERT(priv->provider);
+     ASSERT(priv->sampleRate);
+ 
+-    priv->interleave = gst_element_factory_make("interleave", nullptr);
++    priv->interleave = gst_element_factory_make("audiointerleave", nullptr);
++    bool isAudioInterleaveUsed = priv->interleave;
++    if (!isAudioInterleaveUsed) {
++        GST_WARNING_OBJECT(src, "audiointerleave not found, falling back to old interleave");
++        priv->interleave = gst_element_factory_make("interleave", nullptr);
++    }
+ 
+     if (!priv->interleave) {
+         GST_ERROR_OBJECT(src, "Failed to create interleave");
+-- 
+2.20.1
+

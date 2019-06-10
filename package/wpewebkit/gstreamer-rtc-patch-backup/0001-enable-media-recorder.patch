@@ -1,0 +1,20 @@
+--- a/Source/WebKit/Shared/WebPreferences.yaml
++++ b/Source/WebKit/Shared/WebPreferences.yaml
+@@ -494,7 +494,7 @@
+ 
+ MediaRecorderEnabled:
+     type: bool
+-    defaultValue: true
++    defaultValue: false
+     webcoreBinding: RuntimeEnabledFeatures
+     condition: ENABLE(MEDIA_STREAM)
+     humanReadableName: "MediaRecorder"
+@@ -503,7 +503,7 @@
+ 
+ MediaDevicesEnabled:
+   type: bool
+-  defaultValue: true
++  defaultValue: false
+   webcoreBinding: RuntimeEnabledFeatures
+   condition: ENABLE(MEDIA_STREAM)
+ 

@@ -36,6 +36,7 @@ _svn() {
     eval ${SVN} "${@}"
 }
 
+echo svn export ${verbose} "${@}" "'${uri}@${rev}'" "'${basename}'"
 _svn export ${verbose} "${@}" "'${uri}@${rev}'" "'${basename}'"
 
 tar czf "${output}" "${basename}"

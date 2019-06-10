@@ -4,9 +4,9 @@
 #
 ################################################################################
 
-WPEWEBKIT_SITE_METHOD = svn
-WPEWEBKIT_VERSION = 246102
-WPEWEBKIT_SITE = "http://svn.webkit.org/repository/webkit/releases/WPE%20WebKit/webkit-2.24.2/"
+WPEWEBKIT_VERSION = 2.24.0
+WPEWEBKIT_SITE = http://www.wpewebkit.org/releases
+WPEWEBKIT_SOURCE = wpewebkit-$(WPEWEBKIT_VERSION).tar.xz
 WPEWEBKIT_INSTALL_STAGING = YES
 WPEWEBKIT_LICENSE = LGPL-2.1+, BSD-2-Clause
 WPEWEBKIT_LICENSE_FILES = \
@@ -42,9 +42,7 @@ WPEWEBKIT_CONF_OPTS += \
 	-DENABLE_WEB_AUDIO=ON \
 	-DENABLE_FULLSCREEN_API=ON \
 	-DENABLE_MEDIA_SOURCE=ON \
-	-DENABLE_WEB_RTC=ON \
-	-DENABLE_MEDIA_STREAM=ON \
-	-DENABLE_EXPERIMENTAL_FEATURES=ON
+	-DENABLE_WEB_RTC=ON
 WPEWEBKIT_DEPENDENCIES += gstreamer1 gst1-libav gst1-plugins-base gst1-plugins-good
 else
 WPEWEBKIT_CONF_OPTS += \

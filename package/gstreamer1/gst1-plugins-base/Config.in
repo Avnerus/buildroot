@@ -28,6 +28,11 @@ config BR2_PACKAGE_GST1_PLUGINS_BASE_PLUGIN_AUDIOCONVERT
 	help
 	  Convert audio to different formats
 
+config BR2_PACKAGE_GST1_PLUGINS_BASE_PLUGIN_AUDIOINTERLEAVE
+	bool "audiointerleave"
+	help
+	  Audio inteleave plugin
+
 config BR2_PACKAGE_GST1_PLUGINS_BASE_PLUGIN_AUDIOMIXER
 	bool "audiomixer"
 	help

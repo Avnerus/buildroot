@@ -1,0 +1,22 @@
+--- a/Source/WebCore/page/Settings.yaml
++++ b/Source/WebCore/page/Settings.yaml
+@@ -263,9 +263,9 @@
+ fixedElementsLayoutRelativeToFrame:
+   initial: false
+ allowDisplayOfInsecureContent:
+-  initial: false
++  initial: true
+ allowRunningOfInsecureContent:
+-  initial: false
++  initial: true
+ requiresUserGestureToLoadVideo:
+   initial: defaultRequiresUserGestureToLoadVideo
+ videoPlaybackRequiresUserGesture:
+@@ -811,6 +811,6 @@
+   inspectorOverride: true
+ 
+ mediaCaptureRequiresSecureConnection:
+-  initial: true
++  initial: false
+   conditional: MEDIA_STREAM
+   inspectorOverride: true
