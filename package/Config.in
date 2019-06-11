@@ -1086,6 +1086,7 @@ endmenu
 
 menu "Softbot Kit"
     source "package/softbot-scripts/Config.in"
+    source "package/soft_control_rust/Config.in"
 endmenu
 
 menu "Libraries"

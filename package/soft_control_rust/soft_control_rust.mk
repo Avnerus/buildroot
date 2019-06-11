@@ -38,6 +38,9 @@ define SOFT_CONTROL_RUST_INSTALL_TARGET_CMDS
     $(INSTALL) -D \
             $(@D)/target/$(RUSTC_TARGET_NAME)/$(SOFT_CONTROL_RUST_CARGO_MODE)/soft_control \
             $(TARGET_DIR)/usr/bin/soft_control
+	$(INSTALL) -D \
+			$(@D)/config-rpi.json \
+			$(TARGET_DIR)/root/config.json
 endef
 
 $(eval $(generic-package))
