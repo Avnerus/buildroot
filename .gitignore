@@ -14,3 +14,5 @@
 *~
 *.pyc
 *.swp
+*.pem
+*.dbk
