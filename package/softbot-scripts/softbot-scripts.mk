@@ -6,6 +6,9 @@ define SOFTBOT_SCRIPTS_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 0755 $(@D)/softbot-stream-video.sh $(TARGET_DIR)/usr/bin/softbot-stream-video.sh
 	$(INSTALL) -D -m 0755 $(@D)/softbot-stream-multi.sh $(TARGET_DIR)/usr/bin/softbot-stream-multi.sh
 	$(INSTALL) -D -m 0755 $(@D)/softbot-browser.sh $(TARGET_DIR)/usr/bin/softbot-browser.sh
+	$(INSTALL) -D -m 0755 $(@D)/softbot-tunnel.sh $(TARGET_DIR)/usr/bin/softbot-tunnel.sh
+	$(INSTALL) -D -m 0755 $(@D)/softbot-tunnel-db.sh $(TARGET_DIR)/usr/bin/softbot-tunnel-db.sh
+	$(INSTALL) -D -m 0755 $(@D)/softbot-tunnel-ssh.sh $(TARGET_DIR)/usr/bin/softbot-tunnel-ssh.sh
 endef
 
 $(eval $(generic-package))
