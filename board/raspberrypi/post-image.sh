@@ -20,9 +20,9 @@ dtoverlay=pi3-miniuart-bt
 __EOF__
     fi
     ;;
-    --waveshare)
+    --waveshare5)
     if ! grep -qE '^hdmi_mode=87' "${BINARIES_DIR}/rpi-firmware/config.txt"; then
-        echo "Adding Softbot Waveshare stuff to config.txt."
+        echo "Adding Softbot Waveshare5 stuff to config.txt."
         cat << __EOF__ >> "${BINARIES_DIR}/rpi-firmware/config.txt"
 
 # from https://www.waveshare.com/w/upload/4/4a/5inch_HDMI_LCD_User_Manual_EN.pdf
@@ -31,6 +31,23 @@ hdmi_group=2
 hdmi_mode=87
 hdmi_cvt 800 480 60 6 0 0 0
 hdmi_drive=1
+# it doesn't have audio, force ignore
+hdmi_ignore_edid_audio=1
+__EOF__
+    fi
+    ;;
+    --waveshare4)
+    if ! grep -qE '^hdmi_mode=87' "${BINARIES_DIR}/rpi-firmware/config.txt"; then
+        echo "Adding Softbot Waveshare4 stuff to config.txt."
+        cat << __EOF__ >> "${BINARIES_DIR}/rpi-firmware/config.txt"
+
+# from https://www.waveshare.com/w/upload/f/fd/4.3inch_HDMI_LCD_User_Manual_EN.pdf
+max_usb_current=1
+hdmi_group=2
+hdmi_mode=87
+hdmi_timings=480 0 1 41 2 272 0 2 10 2 0 0 0 60 0 9009000 3
+hdmi_drive=1
+display_rotate=2
 # it doesn't have audio, force ignore
 hdmi_ignore_edid_audio=1
 __EOF__
